@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os/exec"
+	"refract/server"
 )
 
 //modify power level color theme -
@@ -22,15 +22,17 @@ func PrintColor(color int, msg string) {
 }
 
 func main() {
-	for i := 0; i < 5; i++ {
-		fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/middleware/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/middleware/images/a-shapes-%d.svg", i),
-			"-n", fmt.Sprint(i*50)).Output()
-		if err != nil {
-			PrintError(err.Error())
-			return
-		}
-		fmt.Println(fout)
-	}
+	PrintColor(successColor, "Starting server on port :9090")
+	server.MainServer()
+	// for i := 1; i < 10; i++ {
+	// 	fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/refract/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/refract/images/a-shapes-%d.svg", i),
+	// 		"-n", fmt.Sprint(i*50)).Output()
+	// 	if err != nil {
+	// 		PrintError(err.Error())
+	// 		return
+	// 	}
+	// 	fmt.Println(fout)
+	// }
 
 	// con := api.CreateDefault()
 	// con.Input = "/home/guy/projects/go/geo/middleware/images/a.jpg"
