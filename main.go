@@ -22,8 +22,8 @@ func PrintColor(color int, msg string) {
 }
 
 func main() {
-	PrintColor(successColor, "Starting server on port :9090")
-	server.MainServer()
+	PrintColor(successColor, "Starting server on port: 9090")
+	server.NewServer()
 	// for i := 1; i < 10; i++ {
 	// 	fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/refract/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/refract/images/a-shapes-%d.svg", i),
 	// 		"-n", fmt.Sprint(i*50)).Output()

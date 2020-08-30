@@ -10,66 +10,46 @@ type Model struct {
 	UID       uint      `gorm:"primaryKey" json:"uid,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	Name      string    `json:"name,omitempty"`
+	Name      string    `gorm:"index" json:"name,omitempty"`
 	Image     []byte    `json:"image,omitempty"`
-	Extension string    `gorm:"index" json:"extension,omitempty"`
-	Parent    string    `json:"parent,omitempty"`
+	FileName  string    `gorm:"index" json:"filename,omitempty"`
+	Parent    string    `gorm:"index" json:"parent,omitempty"`
+	URL       string    `json:"url,omitempty"`
+	Hidden    bool      `json:"hidden,omitempty"`
+	Tags      []string  `json:"tags,omitempty"`
 }
 
-// //AllowedType handles which types are allowed and gives us file extensions
-// type AllowedType string
-
-// const (
-// 	PNG AllowedType = ".png"
-// 	JPG             = ".jpg"
-// 	SVG             = ".svg"
-// 	GIF             = ".gif"
-// )
-
-// func (at AllowedType) IsValid() error {
-// 	switch at {
-// 	case PNG, JPG, SVG, GIF:
-// 		return nil
-// 	}
-// 	return errors.New("Accepted Image formats are png, jpg, svg, gif")
-// }
+//Add original URL as well as hidden from browse feature.
 
 func (m *Model) Verify() error {
 	valid := true
 	msg := "Invalid Fields: "
-	// if m.UID == 0 {
-	// 	valid = false
-	// 	msg += "UID "
-	// }
+	if m.UID == 0 {
+		valid = false
+		msg += "UID "
+	}
 	if m.Name == "" {
 		valid = false
 		msg += "Name "
 	}
-	if m.Extension == "" {
+	if m.FileName == "" {
 		valid = false
-		msg += "Extension "
+		msg += "Filename "
 	}
-	// if err := m.Extension.IsValid(); err != nil {
-	// 	valid = false
-	// 	msg += err.Error()
-	// }
 	if !valid {
 		return errors.New(msg)
 	}
 	return nil
 }
 func (m *Model) VerifyUpload() error {
-	fmt.Println("M: ", m.Name, m.Parent, m.Extension)
+	fmt.Println("M: ", m.Name, m.Parent, m.FileName)
 	valid := true
 	msg := "Invalid Fields: "
 	if m.Name == "" {
 		valid = false
 		msg += "Name "
 	}
-	// if err := m.Extension.IsValid(); err != nil {
-	// 	valid = false
-	// 	msg += err.Error()
-	// }
+
 	if !valid {
 		return errors.New(msg)
 	}
