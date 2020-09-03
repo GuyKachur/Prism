@@ -31,7 +31,7 @@ var Instance Datastore
 func init() {
 	// dbString := os.Getenv("DB_STRING")
 	// fmt.Println(dbString)
-	dsn := "user=refract password=postgres dbname=refract port=5432 sslmode=disable"
+	dsn := "user=refract password=postgres dbname=prism port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
@@ -51,14 +51,12 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 		if page == 0 {
 			page = 1
 		}
-
 		switch {
 		case pageSize > 100:
 			pageSize = 100
 		case pageSize <= 0:
 			pageSize = 10
 		}
-
 		offset := (page - 1) * pageSize
 		return db.Offset(offset).Limit(pageSize)
 	}

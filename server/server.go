@@ -11,7 +11,7 @@ import (
 var Logger http.Handler
 var OutboundClient *http.Client
 
-func handleError(w http.ResponseWriter, err error) {
+func HandleError(w http.ResponseWriter, err error) {
 	//LOG???
 	l.Error("Something went wrong!")
 	l.Debug(err)
@@ -39,6 +39,6 @@ func NewServer() {
 	r.Use(middleware.Recoverer)
 
 	r.Get("/ping", healthCheck)
-	r.Mount("/refract", artHandler())
+	r.Mount("/", artHandler())
 	http.ListenAndServe(":9090", r)
 }

@@ -12,18 +12,18 @@ import (
 func search(w http.ResponseWriter, req *http.Request) {
 	term := chi.URLParam(req, "term")
 	if term == "" {
-		handleError(w, errors.New("Invalid term"))
+		HandleError(w, errors.New("Invalid term"))
 		return
 	}
-	images, err := database.Instance.searchImages(term)
+	images, err := database.Instance.Search(term)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	marshalledResponse, err := json.Marshal(images)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

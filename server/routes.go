@@ -9,10 +9,10 @@ import (
 )
 
 type Input struct {
-	Name      string
-	Extension string
-	Parent    string
-	Tags      []string
+	Name     string
+	FileName string
+	Parent   string
+	Tags     string
 }
 
 func artHandler() http.Handler {
@@ -32,12 +32,12 @@ func artHandler() http.Handler {
 func deleteImage(w http.ResponseWriter, req *http.Request) {
 	uid := chi.URLParam(req, "uid")
 	if uid == "" {
-		handleError(w, errors.New("Invalid UID"))
+		HandleError(w, errors.New("Invalid UID"))
 		return
 	}
 	err := database.Instance.Delete(uid)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 

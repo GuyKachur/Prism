@@ -13,35 +13,36 @@ import (
 func createImage(w http.ResponseWriter, req *http.Request) {
 	err := req.ParseMultipartForm(64 << 20)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
-	file, fh, err := req.FormFile("input")
+	file, fh, err := req.FormFile("file")
 	fmt.Println("Uploading... ", fh.Filename)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 	defer file.Close()
 
-	md := req.FormValue("metadata")
+	md := req.FormValue("input")
 	input := &Input{}
 	err = json.Unmarshal([]byte(md), input)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
-	bytes, err := ioutil.ReadAll(file)
+	b, err := ioutil.ReadAll(file)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
+	img := string(b)
 
 	model := &database.Model{
 		UID:      0,
 		Name:     input.Name,
-		Image:    bytes,
-		FileName: input.Extension,
+		Image:    img,
+		FileName: input.FileName,
 		Parent:   input.Parent,
 		Tags:     input.Tags,
 	}
@@ -52,7 +53,7 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 
 	err = database.Instance.Upload(model)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
@@ -63,34 +64,34 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 func uploadURL(w http.ResponseWriter, req *http.Request) {
 	url := req.FormValue("url")
 	if url == "" {
-		handleError(w, errors.New("Missing URL in upload body"))
+		HandleError(w, errors.New("Missing URL in upload body"))
 	}
 	md := req.FormValue("metadata")
 	input := &Input{}
 	err := json.Unmarshal([]byte(md), input)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 
 	resp, err := OutboundClient.Get(url)
 	if err != nil {
-		handleError(w, errors.Wrap(err, "Error downloading image from URL: "))
+		HandleError(w, errors.Wrap(err, "Error downloading image from URL: "))
 		return
 	}
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
-
+	img := string(b)
 	model := &database.Model{
 		UID:      0,
 		Name:     input.Name,
-		Image:    bytes,
-		FileName: input.Extension,
+		Image:    img,
+		FileName: input.FileName,
 		Parent:   input.Parent,
 		URL:      url,
 		Tags:     input.Tags,
@@ -98,7 +99,7 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 
 	err = database.Instance.Upload(model)
 	if err != nil {
-		handleError(w, err)
+		HandleError(w, err)
 		return
 	}
 

@@ -11,12 +11,12 @@ type Model struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	Name      string    `gorm:"index" json:"name,omitempty"`
-	Image     []byte    `json:"image,omitempty"`
-	FileName  string    `gorm:"index" json:"filename,omitempty"`
+	Image     string    `gorm:"uniqueIndex" json:"image,omitempty"`
+	FileName  string    `gorm:"uniqueIndex" json:"filename,omitempty"`
 	Parent    string    `gorm:"index" json:"parent,omitempty"`
 	URL       string    `json:"url,omitempty"`
 	Hidden    bool      `json:"hidden,omitempty"`
-	Tags      []string  `json:"tags,omitempty"`
+	Tags      string    `json:"tags,omitempty"`
 }
 
 //Add original URL as well as hidden from browse feature.
