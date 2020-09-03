@@ -1,6 +1,6 @@
-# Refract
+# Prism
 
-Refract hopes to expose [primitive](https://github.com/fogleman/primitive) as a web service and allow easy uploading and manipulation of images.
+Prism hopes to expose [primitive](https://github.com/fogleman/primitive) as a web service and allow easy uploading and manipulation of images.
 
 ## API
 
@@ -30,7 +30,6 @@ Database accepts duplicate files.
 Need random image endpoint
 need search tags
 add notion of tags
-
 
 Need to see how many pages of images have been uploaded
 Need to block duplicates...
