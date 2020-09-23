@@ -1,11 +1,18 @@
-package api
+package refract
 
-import "fmt"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
 
 //Config represents the options that primitive accepts
+//version config?
 type Config struct {
-	Input       string `json:"input,omitempty"`
-	Output      string `json:"output,omitempty"`
+	gorm.Model
+	input       string
+	output      string
+	Name        string `gorm:"unique"`
 	Number      int    `json:"number,omitempty"`
 	Mode        int    `json:"mode,omitempty"`        //0=combo, 1=triangle, 2=rect, 3=ellipse, 4=circle, 5=rotatedrect, 6=beziers, 7=rotatedellipse, 8=polygon
 	Rep         int    `json:"rep,omitempty"`         //add N extra shapes each iteration with reduced search (mostly good for beziers)
@@ -23,8 +30,8 @@ type Config struct {
 //CreateDefault creats a default config, missing only input and output
 func CreateDefault() *Config {
 	return &Config{
-		Input:       "",
-		Output:      "",
+		input:       "",
+		output:      "",
 		Number:      100,
 		Mode:        0,
 		Rep:         0,
@@ -41,14 +48,14 @@ func CreateDefault() *Config {
 
 //Verify returns true if config is runnable
 func (c *Config) Verify() bool {
-	return c.Input != "" && c.Output != "" && c.Number != 0
+	return c.input != "" && c.output != "" && c.Number != 0
 }
 
 //CommandForm returns the config in the form expected by the 'primitive' command
 func (c *Config) CommandForm() string {
 	return fmt.Sprintf(" -i %s -o %s -n %d -m %d -rep %d -nth %d -r %d -s %d -a %d -bg %s -j %d -v %s -vv %s",
-		c.Input,
-		c.Output,
+		c.input,
+		c.output,
 		c.Number,
 		c.Mode,
 		c.Rep,

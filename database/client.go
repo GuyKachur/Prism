@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"math/rand"
+	"refract/refract"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -10,7 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
+//Datastore Controls interaction with the database & datastore
 type Datastore interface {
+	StorageAPI
 	GetImage(uid string) (*Model, error)
 	GetChildren(parentUID string) (*[]Model, error)
 	Upload(model *Model) error
@@ -26,6 +29,7 @@ type instance struct {
 	db *gorm.DB
 }
 
+//Instance is the datastore client
 var Instance Datastore
 
 func init() {
@@ -39,6 +43,7 @@ func init() {
 
 	// Migrate the schema
 	db.AutoMigrate(&Model{})
+	db.AutoMigrate(&refract.Config{})
 
 	//Set instance
 	Instance = &instance{
@@ -46,7 +51,7 @@ func init() {
 	}
 }
 
-func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
+func paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if page == 0 {
 			page = 1
@@ -64,7 +69,7 @@ func Paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {
 
 func (instance *instance) LoadImages(page, pageSize int) (*[]Model, error) {
 	images := []Model{}
-	result := instance.db.Scopes(Paginate(page, pageSize)).Find(&images)
+	result := instance.db.Scopes(paginate(page, pageSize)).Find(&images)
 	if result.Error != nil {
 		return nil, errors.Wrap(result.Error, "Unable to retrive page: ")
 	}
@@ -104,7 +109,7 @@ func (instance *instance) Upload(model *Model) error {
 // }
 func (instance *instance) Delete(uid string) error {
 	if result := instance.db.Delete(&Model{}, uid); result.Error != nil {
-		return errors.Wrap(result.Error, fmt.Sprintf("Error deleting model: %d", uid))
+		return errors.Wrap(result.Error, fmt.Sprintf("Error deleting model: %s", uid))
 	}
 	return nil
 }

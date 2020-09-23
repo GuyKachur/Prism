@@ -24,7 +24,7 @@ func artHandler() http.Handler {
 	r.Delete("/delete/{uid}", deleteImage)
 	r.Post("/upload", createImage)
 	r.Post("/upload/url", uploadURL)
-	r.Get("/browse/{page}/{pageSize}", browse)
+	r.Get("/browse/{page}/{pageSize}", Browse)
 	r.Get("/search/{term}", search)
 	return r
 }

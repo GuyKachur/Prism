@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func browse(w http.ResponseWriter, req *http.Request) {
+func Browse(w http.ResponseWriter, req *http.Request) {
 	page, err := strconv.Atoi(chi.URLParam(req, "page"))
 	if err != nil {
 		HandleError(w, errors.New("Invalid page"))

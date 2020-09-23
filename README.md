@@ -21,23 +21,28 @@ Admins can also execute DELETE commands on the same URL
 
 ---
 
-#### Known Issues
+### Profiles
 
-Database accepts duplicate files.
+Profiles make the life blood of the app. They are a set of options that can be called on primitive. This endpoint will be
+basic functionanlity
+/profile/create
+/profile/read
+
+### Refract
+
+Refract will take in an image and config, and spit out a image transformed by primitive
+/refract?profile={name}&image={uid}
+/refract and then the request just has those in it?
+
+when someone calls refract for the first time i should check if that file has already been refracted by this profile.
+theres a few ways to do it.
+i think take profile
+profile should have a list of
+
+#### Known Issues
 
 #### TODO
 
-Need random image endpoint
-need search tags
-add notion of tags
-
-Need to see how many pages of images have been uploaded
-Need to block duplicates...
-
-swap extension to filename --->
-
-learn react hooks? i guess
-
 Profiles
-CRUD profile,
+CRUD profile, UD!
 pass in profile and image id -> generate new image marked as child of original image
