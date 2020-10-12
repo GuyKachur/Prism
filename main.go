@@ -12,9 +12,9 @@ const (
 	successColor = 49
 )
 
-func PrintError(msg string) {
-	PrintColor(errorColor, msg)
-}
+// func PrintError(msg string) {
+// 	PrintColor(errorColor, msg)
+// }
 
 func PrintColor(color int, msg string) {
 	fmt.Printf(colorHolder, color, msg)
@@ -25,22 +25,22 @@ func main() {
 	PrintColor(successColor, "Starting server on port: 9090")
 	server.NewServer()
 	// for i := 1; i < 10; i++ {
-	// 	fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/refract/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/refract/images/a-shapes-%d.svg", i),
+	// 	fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/prism/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/prism/images/output/a-shapes-%d.svg", i),
 	// 		"-n", fmt.Sprint(i*50)).Output()
 	// 	if err != nil {
-	// 		PrintError(err.Error())
+	// 		l.Error(err)
 	// 		return
 	// 	}
-	// 	fmt.Println(fout)
+	// 	l.Debug(fout)
 	// }
 
-	// con := api.CreateDefault()
-	// con.Input = "/home/guy/projects/go/geo/middleware/images/a.jpg"
-	// con.Output = "/home/guy/projects/go/geo/middleware/images/a.svg"
+	// con := refract.CreateDefault()
+	// con.Input = "/home/guy/projects/go/geo/prism/images/a.jpg"
+	// con.Output = "/home/guy/projects/go/geo/prism/images/a.svg"
 	// con.Verbose = "on"
-	// out, err := api.Primitive(*con)
+	// out, _, err := refract.Primitive(*con)
 	// if err != nil {
-	// 	PrintError(err.Error())
+	// 	l.Error(err)
 	// 	return
 	// }
 	// PrintColor(successColor,

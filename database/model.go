@@ -6,17 +6,24 @@ import (
 	"time"
 )
 
+//Any changes to this model, needs a database reset
+//well, at least seems that way...
+// sudo -u postgres dropdb prism
+// sudo -u postgres createdb prism
+
+//Model is the database object
 type Model struct {
-	UID       uint      `gorm:"primaryKeym default:uuid_generate_v4()" json:"uid,omitempty"`
+	UID       uint      `gorm:"primaryKey" json:"uid,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	Name      string    `gorm:"index" json:"name,omitempty"`
-	Image     []byte    `gorm:"uniqueIndex" json:"image,omitempty"`
+	Image     []byte    `json:"image,omitempty"`
 	FileName  string    `gorm:"uniqueIndex" json:"filename,omitempty"`
 	ParentID  uint      `gorm:"index" json:"parent_id,omitempty"`
 	URL       string    `json:"url,omitempty"`
 	Hidden    bool      `json:"hidden,omitempty"`
 	Tags      string    `json:"tags,omitempty"`
+	FileHash  []byte    `gorm:"uniqueIndex"`
 }
 
 //Add original URL as well as hidden from browse feature.

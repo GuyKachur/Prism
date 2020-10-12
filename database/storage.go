@@ -14,30 +14,29 @@ import (
 )
 
 type StorageAPI interface {
-	SaveImage(model Model) (string, error)
+	SaveImage(model *Model) error
 	LoadImage(path string) (image.Image, string, error)
 }
 
 const ImageRoot = "/images/"
 
 //SaveImage takes the image and saves it to the disk and returns at the path
-func (instance *instance) SaveImage(model Model) (string, error) {
-	path := ImageRoot + fmt.Sprintf("%d", model.UID) + "-" + model.FileName
-	if ok := fileExists(path); ok {
-		//file exists we a;ready have it saved
-		return path, nil
+func (instance *instance) SaveImage(model *Model) error {
+	if ok := fileExists(model.FileName); ok {
+		//file exists we already have it saved
+		return nil
 	}
-	file, err := os.Create(path)
+	file, err := os.Create(model.FileName)
 	if err != nil {
 		l.Error(errors.Wrap(err, "Error saving file: "+fmt.Sprintf("%d", model.UID)))
-		return "", err
+		return err
 	}
 	defer file.Close()
 	img, _, err := image.Decode(bytes.NewReader(model.Image)) //forward
 	if err != nil {
-		return path, err
+		return err
 	}
-	return path, jpeg.Encode(file, img, &jpeg.Options{95}) //default
+	return jpeg.Encode(file, img, &jpeg.Options{95}) //default
 
 }
 

@@ -1,10 +1,13 @@
 package server
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"refract/database"
 	"strconv"
 
@@ -21,7 +24,7 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 	}
 	file, fh, err := req.FormFile("file")
 	defer file.Close()
-	fmt.Println("Uploading... ", fh.Filename)
+	// fmt.Println("Uploading... ", fh.Filename)
 	if err != nil {
 		HandleError(w, err)
 		return
@@ -51,13 +54,17 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 		l.Error(err)
 		parent = uint(0)
 	}
-
+	fileHash := md5.Sum(b)
+	ext := filepath.Ext(fh.Filename)
+	fileName := hex.EncodeToString(fileHash[:]) + ext
+	// l.Warn(len(fileHash))
 	model := &database.Model{
 		Name:     input.Name,
 		Image:    b,
-		FileName: fh.Filename,
+		FileName: fileName,
 		ParentID: parent,
 		Tags:     input.Tags,
+		FileHash: fileHash[:],
 	}
 	// fmt.Println("Input: ", input)
 	// model.Image = nil
@@ -111,6 +118,7 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		l.Error(err)
 	}
+	fileHash := md5.Sum(b)
 
 	model := &database.Model{
 		UID:      uint(0),
@@ -120,6 +128,7 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 		ParentID: uint(parent),
 		URL:      url,
 		Tags:     input.Tags,
+		FileHash: fileHash[:],
 	}
 
 	err = database.Instance.Upload(model)

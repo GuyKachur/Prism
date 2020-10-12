@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/happierall/l"
-
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,7 +36,7 @@ var Instance Datastore
 func init() {
 	// dbString := os.Getenv("DB_STRING")
 	// fmt.Println(dbString)
-	dsn := "user=refract password=postgres dbname=prism port=5432 sslmode=disable"
+	dsn := "user=postgres password=postgres dbname=prism port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
@@ -100,9 +99,10 @@ func (instance *instance) Upload(model *Model) error {
 		return err
 	}
 	if result := instance.db.Create(model); result.Error != nil && result.RowsAffected == 0 {
-		l.Debug(model.UID)
-		return errors.Wrap(err, "Error creating model in database: ")
+		return result.Error
 	}
+	l.Debug(model.UID)
+
 	return nil
 }
 

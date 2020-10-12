@@ -1,6 +1,7 @@
 package server
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +14,9 @@ import (
 	"github.com/happierall/l"
 )
 
-//assumes Image
+//assumes Image is alread in database
+//This will need to be split, if url is full -> go url route, if not go database route
+
 func RefractHandler(w http.ResponseWriter, r *http.Request) {
 	uid := chi.URLParam(r, "uid")
 	if uid != "" {
@@ -37,17 +40,16 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// save image and spit path out into config
 	//save image to filesystem for primitives use
-	path, err := database.Instance.SaveImage(*model)
+	err = database.Instance.SaveImage(model)
 	if err != nil {
 		HandleError(w, err)
 		return
 	}
-	l.Debug("Saved image: ", model.UID, " to path: ", path)
-	config.Input = path
+	config.Input = model.FileName
 	//where do we want to solve the resulting image?
 	// i want to make it parentuid-name-file
 	// so check incoming filename for path in os...
-	newPath := database.ImageRoot + config.Name + "-" + fmt.Sprintf("parent-%d", model.UID)
+	newPath := database.ImageRoot + "temp-" + model.FileName
 	l.Debug("New image being created at ", newPath)
 	config.Output = newPath
 	// config.Output = database.ImageRoot + config.Name + fmt.Sprintf("parent-%d", model.UID) + ""
@@ -57,7 +59,7 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 	// //start building new image
 
 	//heres what i know, i have a model and an image. And primitive is looking to take that image and write it tothe output
-	commandByteArray, err := refract.Primitive(*config)
+	commandByteArray, _, err := refract.Primitive(*config)
 	l.Debug(commandByteArray)
 	if err != nil {
 		HandleError(w, err)
@@ -86,13 +88,14 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, err)
 		return
 	}
+	newHash := md5.Sum(img)
 	newModel := &database.Model{
-		UID:      0,
 		Name:     name,
 		Image:    img,
 		FileName: config.Name + "-" + fmt.Sprintf("parent-%d", model.UID),
 		ParentID: model.UID,
 		Tags:     tags,
+		FileHash: newHash[:],
 	}
 
 	//save resulting image

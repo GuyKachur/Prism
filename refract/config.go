@@ -2,6 +2,7 @@ package refract
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -41,7 +42,7 @@ func CreateDefault() *Config {
 		Alpha:       0,
 		Background:  "avg",
 		Workers:     0,
-		Verbose:     "off",
+		Verbose:     "on",
 		VeryVerbose: "off",
 	}
 }
@@ -52,8 +53,8 @@ func (c *Config) Verify() bool {
 }
 
 //CommandForm returns the config in the form expected by the 'primitive' command
-func (c *Config) CommandForm() string {
-	return fmt.Sprintf(" -i %s -o %s -n %d -m %d -rep %d -nth %d -r %d -s %d -a %d -bg %s -j %d -v %s -vv %s",
+func (c *Config) CommandForm() []string {
+	return strings.Split(fmt.Sprintf("-i %s -o %s -n %d -m %d -rep %d -nth %d -r %d -s %d -a %d -bg %s -j %d -v %s -vv %s",
 		c.Input,
 		c.Output,
 		c.Number,
@@ -66,5 +67,5 @@ func (c *Config) CommandForm() string {
 		c.Background,
 		c.Workers,
 		c.Verbose,
-		c.VeryVerbose)
+		c.VeryVerbose), " ")
 }
