@@ -6,9 +6,9 @@ import (
 	"os/exec"
 )
 
-type API interface {
-	Primitive(c Config) ([]byte, error)
-}
+// type API interface {
+// 	Primitive(c Config) ([]byte, error)
+// }
 
 func Primitive(c Config) ([]byte, error) {
 	valid := c.Verify()
@@ -19,7 +19,6 @@ func Primitive(c Config) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	//image will now be in the path specified in config
 	return out, nil
 }

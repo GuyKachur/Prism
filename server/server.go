@@ -8,12 +8,12 @@ import (
 	"github.com/happierall/l"
 )
 
-var Logger http.Handler
+// var Logger http.Handler
 var OutboundClient *http.Client
 
+// var dc *database.Datastore
+
 func HandleError(w http.ResponseWriter, err error) {
-	//LOG???
-	l.Error("Something went wrong!")
 	l.Debug(err)
 	http.Error(w, err.Error(), 500)
 }
@@ -30,7 +30,6 @@ func NewServer() {
 			return nil
 		},
 	}
-
 	r := chi.NewRouter()
 	//gochi suggested middleware
 	r.Use(middleware.RequestID)

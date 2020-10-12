@@ -6,6 +6,8 @@ import (
 	"refract/refract"
 	"strconv"
 
+	"github.com/happierall/l"
+
 	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -80,7 +82,7 @@ func (instance *instance) LoadImages(page, pageSize int) (*[]Model, error) {
 func (instance *instance) GetImage(uid string) (*Model, error) {
 	var model Model
 	if result := instance.db.Where("uid = ?", uid).First(&model); result.Error != nil {
-		return nil, errors.Wrap(result.Error, fmt.Sprintf("Unable to retrieve item with UID: %s", uid))
+		return nil, errors.Wrap(result.Error, fmt.Sprintf("Unable to retrieve item with UID[%s]: ", uid))
 	}
 	return &model, nil
 }
@@ -93,11 +95,12 @@ func (instance *instance) GetChildren(parentUID string) (*[]Model, error) {
 	return &children, nil
 }
 func (instance *instance) Upload(model *Model) error {
-	err := model.Verify()
+	err := model.VerifyUpload()
 	if err != nil {
 		return err
 	}
-	if result := instance.db.Create(model); result.Error != nil {
+	if result := instance.db.Create(model); result.Error != nil && result.RowsAffected == 0 {
+		l.Debug(model.UID)
 		return errors.Wrap(err, "Error creating model in database: ")
 	}
 	return nil

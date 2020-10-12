@@ -10,8 +10,8 @@ import (
 //version config?
 type Config struct {
 	gorm.Model
-	input       string
-	output      string
+	Input       string
+	Output      string
 	Name        string `gorm:"unique"`
 	Number      int    `json:"number,omitempty"`
 	Mode        int    `json:"mode,omitempty"`        //0=combo, 1=triangle, 2=rect, 3=ellipse, 4=circle, 5=rotatedrect, 6=beziers, 7=rotatedellipse, 8=polygon
@@ -30,8 +30,8 @@ type Config struct {
 //CreateDefault creats a default config, missing only input and output
 func CreateDefault() *Config {
 	return &Config{
-		input:       "",
-		output:      "",
+		Input:       "",
+		Output:      "",
 		Number:      100,
 		Mode:        0,
 		Rep:         0,
@@ -48,14 +48,14 @@ func CreateDefault() *Config {
 
 //Verify returns true if config is runnable
 func (c *Config) Verify() bool {
-	return c.input != "" && c.output != "" && c.Number != 0
+	return c.Input != "" && c.Output != "" && c.Number != 0
 }
 
 //CommandForm returns the config in the form expected by the 'primitive' command
 func (c *Config) CommandForm() string {
 	return fmt.Sprintf(" -i %s -o %s -n %d -m %d -rep %d -nth %d -r %d -s %d -a %d -bg %s -j %d -v %s -vv %s",
-		c.input,
-		c.output,
+		c.Input,
+		c.Output,
 		c.Number,
 		c.Mode,
 		c.Rep,

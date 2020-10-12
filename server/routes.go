@@ -9,10 +9,9 @@ import (
 )
 
 type Input struct {
-	Name     string
-	FileName string
-	Parent   string
-	Tags     string
+	Name   string
+	Parent string
+	Tags   string
 }
 
 func artHandler() http.Handler {

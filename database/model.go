@@ -7,13 +7,13 @@ import (
 )
 
 type Model struct {
-	UID       uint      `gorm:"primaryKey" json:"uid,omitempty"`
+	UID       uint      `gorm:"primaryKeym default:uuid_generate_v4()" json:"uid,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	Name      string    `gorm:"index" json:"name,omitempty"`
-	Image     string    `gorm:"uniqueIndex" json:"image,omitempty"`
+	Image     []byte    `gorm:"uniqueIndex" json:"image,omitempty"`
 	FileName  string    `gorm:"uniqueIndex" json:"filename,omitempty"`
-	Parent    string    `gorm:"index" json:"parent,omitempty"`
+	ParentID  uint      `gorm:"index" json:"parent_id,omitempty"`
 	URL       string    `json:"url,omitempty"`
 	Hidden    bool      `json:"hidden,omitempty"`
 	Tags      string    `json:"tags,omitempty"`
@@ -42,7 +42,7 @@ func (m *Model) Verify() error {
 	return nil
 }
 func (m *Model) VerifyUpload() error {
-	fmt.Println("M: ", m.Name, m.Parent, m.FileName)
+	fmt.Println("M: ", m.Name, m.ParentID, m.FileName)
 	valid := true
 	msg := "Invalid Fields: "
 	if m.Name == "" {
