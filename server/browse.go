@@ -10,6 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+// type Response struct {
+// 	rows []database.Model `json:"rows,omitempty"`
+// }
+
 func Browse(w http.ResponseWriter, req *http.Request) {
 	page, err := strconv.Atoi(chi.URLParam(req, "page"))
 	if err != nil {
@@ -26,6 +30,9 @@ func Browse(w http.ResponseWriter, req *http.Request) {
 		HandleError(w, err)
 		return
 	}
+	// pageResponse := Response{
+	// 	rows: *images,
+	// }
 
 	marshalledResponse, err := json.Marshal(images)
 	if err != nil {

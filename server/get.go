@@ -10,11 +10,19 @@ import (
 )
 
 func randomImage(w http.ResponseWriter, req *http.Request) {
+	// debug := true
 	model, err := database.Instance.Random()
 	if err != nil {
 		HandleError(w, err)
 		return
 	}
+
+	// l.Debug("NewModel: ", model)
+	// if debug && model.URL != "" {
+	// 	img := "<img src=" + model.URL + " alt=" + model.Name + ">"
+	// 	l.Debug(img)
+	// 	model.Image = []byte(img)
+	// }
 	marshalledResponse, err := json.Marshal(model)
 	if err != nil {
 		HandleError(w, err)

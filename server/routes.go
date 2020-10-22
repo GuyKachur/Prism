@@ -9,9 +9,10 @@ import (
 )
 
 type Input struct {
-	Name   string
-	Parent string
-	Tags   string
+	Name   string `json:"name,omitempty"`
+	Parent string `json:"parent,omitempty"`
+	Tags   string `json:"tags,omitempty"`
+	URL    string `json:"url,omitempty"`
 }
 
 func artHandler() http.Handler {
@@ -25,6 +26,7 @@ func artHandler() http.Handler {
 	r.Post("/upload/url", uploadURL)
 	r.Get("/browse/{page}/{pageSize}", Browse)
 	r.Get("/search/{term}", search)
+	r.Get("/refract/{uid}", RefractHandler)
 	return r
 }
 

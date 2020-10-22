@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/happierall/l"
+	"github.com/pkg/errors"
 )
 
 // var Logger http.Handler
@@ -39,5 +40,19 @@ func NewServer() {
 
 	r.Get("/ping", healthCheck)
 	r.Mount("/", artHandler())
-	http.ListenAndServe(":9090", r)
+	http.ListenAndServe(":9090", PanicHandler(r))
+}
+
+func PanicHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			err := recover()
+			if err != nil {
+				er := errors.Errorf("Panic! in the go code... %v", err)
+				http.Error(w, er.Error(), 500)
+				return
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
 }

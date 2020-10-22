@@ -1,8 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"refract/server"
+
+	"github.com/happierall/l"
+	"github.com/pkg/errors"
 )
 
 //modify power level color theme -
@@ -21,8 +28,134 @@ func PrintColor(color int, msg string) {
 	fmt.Println()
 }
 
+type Config struct {
+	InputFilePath string `json:"input_file_path,omitempty"`
+	LoadFiles     bool   `json:"load_files,omitempty"`
+	Scribe        bool   `json:"scribe,omitempty"`
+	Force         bool   `json:"force,omitempty"`
+}
+
+var Seen map[string]bool
+
+// var Seen map[string]string
+// var files []string
+
+func runConfig(config Config) {
+	defer func() {
+		if r := recover(); r != nil {
+			l.Error("Config failed to load: %v", r)
+			if config.Scribe {
+				l.Debug("The system blinks off for a moment before returning to life... Systems operational")
+
+			}
+		}
+	}()
+	if config.LoadFiles {
+		if config.InputFilePath != "" {
+			if config.Scribe {
+				l.Debug("The screen above lights up again, deBUGing #%^#$... beeps start coming out of a panel below as a small fan whirs to life beneath you.")
+			}
+			err := filepath.Walk(config.InputFilePath, func(path string, info os.FileInfo, err error) error {
+				if path != "" {
+					if !Seen[path] {
+						if ok := upload(path); ok {
+							Seen[path] = true
+						}
+						l.Debugf("Skipping path: %s", path)
+
+					}
+				}
+
+				return nil
+			})
+			if err != nil {
+				panic(err)
+			}
+			err = save()
+			if err != nil {
+				panic(err)
+			}
+
+		}
+	}
+	//we arent loading the files what are we doing?
+}
+func save() error {
+	seenStr, err := json.Marshal(Seen)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile("./images/seen.json", seenStr, 0764)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func load(fn string) error {
+	file, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(file, &Seen)
+	if err != nil {
+		return err
+	}
+	if file == nil {
+		return errors.New("File empty")
+	}
+	return nil
+}
+
+func upload(fn string) bool {
+	l.Logf("Uploaded filename: %s", fn)
+	return true
+}
+
+func init() {
+	//setup seen map
+	//try and load, if not make
+
+	if err := load("./images/seen.json"); err != nil {
+		l.Error(err)
+	}
+
+}
+
 func main() {
-	PrintColor(successColor, "Starting server on port: 9090")
+	defer func() {
+		if r := recover(); r != nil {
+			//attempting to save seen to file
+			if err := save(); err != nil {
+				l.Error(err)
+				return
+			}
+			l.Error("and suddenly, the cacophony of noises that had filled the room abruptly end. the screen giving one flash of bright before shutting off. The room plunges into darkness.")
+			l.Log("Save successful")
+		}
+	}()
+
+	if configBytes, err := ioutil.ReadFile("config.json"); err != nil {
+		l.Error(err)
+		panic(err)
+	} else {
+		config := Config{}
+		err = json.Unmarshal(configBytes, &config)
+		if err != nil {
+			l.Error(err)
+		}
+		go runConfig(config)
+	}
+
+	// envConfig := os.Getenv("PRISM_CONFIG")
+	// config := Config{}
+
+	// err := json.Unmarshal([]byte(envConfig), &config)
+	// if err == nil {
+	// 	//TODO: Load scene
+	// 	go runConfig(config)
+	// }
+	PrintColor(successColor, "A small LED screen lights up... [:9090] blinks merrily back at you")
 	server.NewServer()
 	// for i := 1; i < 10; i++ {
 	// 	fout, err := exec.Command("primitive", "-i", "/home/guy/projects/go/geo/prism/images/a.jpg", "-o", fmt.Sprintf("/home/guy/projects/go/geo/prism/images/output/a-shapes-%d.svg", i),

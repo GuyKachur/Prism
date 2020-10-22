@@ -23,12 +23,12 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	file, fh, err := req.FormFile("file")
-	defer file.Close()
 	// fmt.Println("Uploading... ", fh.Filename)
 	if err != nil {
 		HandleError(w, err)
 		return
 	}
+	defer file.Close()
 
 	md := req.FormValue("input")
 	input := &Input{}
@@ -82,10 +82,10 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 }
 
 func uploadURL(w http.ResponseWriter, req *http.Request) {
-	url := req.FormValue("url")
-	if url == "" {
-		HandleError(w, errors.New("Missing URL in upload body"))
-	}
+	// url := req.FormValue("url")
+	// if url == "" {
+	// 	HandleError(w, errors.New("Missing URL in upload body"))
+	// }
 	md := req.FormValue("metadata")
 	input := &Input{}
 	err := json.Unmarshal([]byte(md), input)
@@ -94,7 +94,7 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	resp, err := OutboundClient.Get(url)
+	resp, err := OutboundClient.Get(input.URL)
 	if err != nil {
 		HandleError(w, errors.Wrap(err, "Error downloading image from URL: "))
 		return
@@ -119,14 +119,15 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 		l.Error(err)
 	}
 	fileHash := md5.Sum(b)
-
+	ext := filepath.Ext(input.URL)
+	fileName := hex.EncodeToString(fileHash[:]) + ext
+	// bytes.ToValidUTF8(b, make([]byte, 1))
 	model := &database.Model{
-		UID:      uint(0),
 		Name:     input.Name,
 		Image:    b,
-		FileName: "fh.FileName",
+		FileName: fileName,
 		ParentID: uint(parent),
-		URL:      url,
+		URL:      input.URL,
 		Tags:     input.Tags,
 		FileHash: fileHash[:],
 	}

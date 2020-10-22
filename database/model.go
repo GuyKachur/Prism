@@ -23,7 +23,8 @@ type Model struct {
 	URL       string    `json:"url,omitempty"`
 	Hidden    bool      `json:"hidden,omitempty"`
 	Tags      string    `json:"tags,omitempty"`
-	FileHash  []byte    `gorm:"uniqueIndex"`
+	FileHash  []byte    `gorm:"uniqueIndex" json:"file_hash,omitempty"`
+	Type      string    `gorm:"index" json:"type,omitempty"`
 }
 
 //Add original URL as well as hidden from browse feature.

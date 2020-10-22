@@ -2,9 +2,7 @@ package database
 
 import (
 	"fmt"
-	"math/rand"
 	"refract/refract"
-	"strconv"
 
 	"github.com/happierall/l"
 	"github.com/pkg/errors"
@@ -43,8 +41,14 @@ func init() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&Model{})
-	db.AutoMigrate(&refract.Config{})
+	err = db.AutoMigrate(&Model{}, &refract.Config{}, &refract.Output{})
+	if err != nil {
+		panic(fmt.Sprintf("Failed to migrate database %v", err))
+	}
+	// db.Model(&refract.Config{})
+	//
+	// db.AutoMigrate(&refract.Config{})
+	// db.AutoMigrate(&refract.OutputPath{})
 
 	//Set instance
 	Instance = &instance{
@@ -88,15 +92,21 @@ func (instance *instance) GetImage(uid string) (*Model, error) {
 
 func (instance *instance) GetChildren(parentUID string) (*[]Model, error) {
 	var children = make([]Model, 0)
-	if err := instance.db.Where("parent <> ?", parentUID).Find(&children).Error; err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Unable to retrieve items with parent: %s", parentUID))
+	if result := instance.db.Where("parent_id != 0 AND parent_id = ?", parentUID).Find(&children); result.Error != nil && result.RowsAffected != 0 {
+		return nil, errors.Wrap(result.Error, fmt.Sprintf("Unable to retrieve items with parent_id = %s", parentUID))
 	}
+
 	return &children, nil
 }
 func (instance *instance) Upload(model *Model) error {
 	err := model.VerifyUpload()
 	if err != nil {
 		return err
+	}
+
+	err = instance.SaveImage(model)
+	if err != nil {
+		return errors.Errorf("Error saving image: %v", err)
 	}
 	if result := instance.db.Create(model); result.Error != nil && result.RowsAffected == 0 {
 		return result.Error
@@ -119,18 +129,17 @@ func (instance *instance) Delete(uid string) error {
 
 func (instance *instance) CountTable(table string) (*int64, error) {
 	var count int64
-	if result := instance.db.Table("model").Count(&count); result.Error != nil {
+	if result := instance.db.Table(table).Count(&count); result.Error != nil {
 		return nil, errors.Wrap(result.Error, fmt.Sprintf("Table %s unaccesible", table))
 	}
 	return &count, nil
 }
 func (instance *instance) Random() (*Model, error) {
-	rowCount, err := instance.CountTable("model")
-	if err != nil {
-		return nil, err
+	model := Model{}
+	if result := instance.db.Limit(1).Order("RANDOM()").Find(&model); result.Error != nil && result.RowsAffected != 0 {
+		return nil, result.Error
 	}
-	toGet := rand.Int63n(*rowCount)
-	return instance.GetImage(strconv.FormatInt(toGet, 10))
+	return &model, nil
 
 }
 

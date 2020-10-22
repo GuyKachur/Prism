@@ -2,7 +2,10 @@ package refract
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
+
+	"github.com/happierall/l"
 )
 
 // type API interface {
@@ -16,6 +19,8 @@ func Primitive(c Config) ([]byte, string, error) {
 	if !valid {
 		return nil, "", errors.New("Invalid config. Aborting")
 	}
+	com := fmt.Sprintf("primitive %v", c.CommandForm())
+	l.Debug(com)
 	out, err := exec.Command("primitive", c.CommandForm()...).Output()
 	if err != nil {
 		return nil, "", err
