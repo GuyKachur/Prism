@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"refract/server"
@@ -56,12 +59,13 @@ func runConfig(config Config) {
 				l.Debug("The screen above lights up again, deBUGing #%^#$... beeps start coming out of a panel below as a small fan whirs to life beneath you.")
 			}
 			err := filepath.Walk(config.InputFilePath, func(path string, info os.FileInfo, err error) error {
+				l.Debug(path)
 				if path != "" {
 					if !Seen[path] {
 						if ok := upload(path); ok {
 							Seen[path] = true
 						}
-						l.Debugf("Skipping path: %s", path)
+						l.Debugf("Skipping: %s", path)
 
 					}
 				}
@@ -108,7 +112,70 @@ func load(fn string) error {
 }
 
 func upload(fn string) bool {
-	l.Logf("Uploaded filename: %s", fn)
+	file, err := os.Open(fn)
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+	defer file.Close()
+
+	fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+
+	fi, err := file.Stat()
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	defer writer.Close()
+	part, err := writer.CreateFormFile("file", fi.Name())
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+	_, err = part.Write(fileContents)
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+
+	input, err := json.Marshal(server.Input{
+		Name: fn,
+		Tags: "toGeo",
+	})
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+
+	err = writer.WriteField("input", string(input))
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+	writer.Close()
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "http://localhost:9090/upload", body)
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+	req.Header.Add("Content-Type", writer.FormDataContentType())
+	resp, err := client.Do(req)
+	if err != nil {
+		l.Error(err)
+		return false
+	}
+	respBody, _ := ioutil.ReadAll(resp.Body)
+	l.Debug(string(respBody))
+
 	return true
 }
 
@@ -155,6 +222,7 @@ func main() {
 	// 	//TODO: Load scene
 	// 	go runConfig(config)
 	// }
+	PrintColor(successColor, "-_-Starting Server-_-")
 	PrintColor(successColor, "A small LED screen lights up... [:9090] blinks merrily back at you")
 	server.NewServer()
 	// for i := 1; i < 10; i++ {

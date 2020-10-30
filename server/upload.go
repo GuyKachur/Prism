@@ -51,7 +51,7 @@ func createImage(w http.ResponseWriter, req *http.Request) {
 	parent64, err := strconv.ParseUint(input.Parent, 10, 64)
 	parent := uint(parent64)
 	if err != nil {
-		l.Error(err)
+		l.Debugf("No parent_id found defaulting to 0: %v", err)
 		parent = uint(0)
 	}
 	fileHash := md5.Sum(b)
@@ -106,8 +106,6 @@ func uploadURL(w http.ResponseWriter, req *http.Request) {
 		HandleError(w, err)
 		return
 	}
-	//we need to see what the image looks like here, but
-	// just make it fileheader
 
 	// img, _, err := image.Decode(bytes.NewReader(b)) //discard options
 	// if err != nil {

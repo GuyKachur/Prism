@@ -22,6 +22,10 @@ type Datastore interface {
 	Random() (*Model, error)
 	CountTable(table string) (*int64, error)
 	Search(term string) (*[]Model, error)
+
+	// //config
+	// GetConfig(name string) (*refract.Config, error)
+	// CreateConfig(refract.Config) error
 }
 
 type instance struct {
@@ -84,6 +88,9 @@ func (instance *instance) LoadImages(page, pageSize int) (*[]Model, error) {
 
 func (instance *instance) GetImage(uid string) (*Model, error) {
 	var model Model
+	if uid == "" || uid == "undefined" {
+		return nil, errors.New(fmt.Sprintf("Invalid uid: %s", uid))
+	}
 	if result := instance.db.Where("uid = ?", uid).First(&model); result.Error != nil {
 		return nil, errors.Wrap(result.Error, fmt.Sprintf("Unable to retrieve item with UID[%s]: ", uid))
 	}
@@ -151,3 +158,7 @@ func (instance *instance) Search(term string) (*[]Model, error) {
 	return &images, nil
 
 }
+
+// func (instance *instance) GetConfig(name string) (*refract.Config, error) {
+// 	return nil, nil
+// }

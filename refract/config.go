@@ -14,7 +14,7 @@ type Config struct {
 	gorm.Model
 	input       string
 	output      string
-	Name        string   `gorm:"unique"`
+	Name        string   `gorm:"unique" json:"name,omitempty"`
 	Number      int      `json:"number,omitempty"`
 	Mode        int      `json:"mode,omitempty"`        //0=combo, 1=triangle, 2=rect, 3=ellipse, 4=circle, 5=rotatedrect, 6=beziers, 7=rotatedellipse, 8=polygon
 	Rep         int      `json:"rep,omitempty"`         //add N extra shapes each iteration with reduced search (mostly good for beziers)
@@ -26,7 +26,7 @@ type Config struct {
 	Workers     int      `json:"workers,omitempty"`     // number of parallel workers, 0 = all cores
 	Verbose     string   `json:"verbose,omitempty"`     //verbose: off
 	VeryVerbose string   `json:"veryverbose,omitempty"` //very verbose: off
-	Outputs     []Output `gorm:"-"`
+	Outputs     []Output `gorm:"-" json:"outputs,omitempty"`
 }
 
 type Output struct {
@@ -37,7 +37,7 @@ type Output struct {
 }
 
 // func (of *Output) GetType() string {
-// 	return Path.Ext(of.Path)
+// 	return path.Ext(of.Path
 // }
 
 // {"name":"Unknown","number":"35","mode":"0","rep":"0","nth":"1","in_size":"256","out_size":"512","alpha":"0","workers":"0","verbose":"on","veryverbbose":"off","Outputs":[{"format":".svg"}]}
@@ -69,6 +69,16 @@ func (c *Config) Verify() bool {
 	if c.Outputs == nil {
 		return false
 	}
+	// for i := range c.Outputs {
+	// 	ext := Path.Ext(c.Outputs[i].filename)
+	// 	switch ext {
+	// 	case ".svg":
+	// 		{
+	// 			c.Outputs[i].Format = "svg"
+	// 		}
+	// 	}
+
+	// }
 	return c.input != "" && c.output != "" && c.Number != 0
 }
 

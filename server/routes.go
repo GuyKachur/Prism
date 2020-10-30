@@ -27,6 +27,9 @@ func artHandler() http.Handler {
 	r.Get("/browse/{page}/{pageSize}", Browse)
 	r.Get("/search/{term}", search)
 	r.Get("/refract/{uid}", RefractHandler)
+	// //config
+	// r.Get("/config/name", configHandler)
+	// r.Post("/config")
 	return r
 }
 

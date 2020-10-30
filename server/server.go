@@ -15,7 +15,7 @@ var OutboundClient *http.Client
 // var dc *database.Datastore
 
 func HandleError(w http.ResponseWriter, err error) {
-	l.Debug(err)
+	l.Error(err)
 	http.Error(w, err.Error(), 500)
 }
 

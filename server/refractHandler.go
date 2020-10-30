@@ -87,6 +87,12 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		newHash := md5.Sum(img)
 		newFilename := config.Outputs[i].Path
+		configString, err := json.Marshal(config)
+		if err != nil {
+			HandleError(w, err)
+			return
+		}
+
 		newModel := &database.Model{
 			Name:     name,
 			Image:    img,
@@ -94,6 +100,7 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 			ParentID: model.UID,
 			Tags:     fmt.Sprintf("%s %s %s", tags, config.Name, config.Outputs[i].Format),
 			FileHash: newHash[:],
+			Config:   string(configString),
 		}
 
 		//save resulting image
@@ -108,50 +115,6 @@ func RefractHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	// imgFile, err := os.Open(newPath)
-	// defer imgFile.Close()
-	// if err != nil {
-	// 	HandleError(w, err)
-	// 	return
-	// }
-
-	// img, _, err := image.Decode(imgFile)
-	// if err != nil {
-	// 	HandleError(w, err)
-	// 	return
-	// }
-
-	//that will hopefully return a success.... though it might only return on error state
-	//fill the output path
-	//now we need to grab the outputted image,
-	// newImage := &Model{
-	// 	Name: name
-	// }
-
-	//model
-	// 	UID       uint      `gorm:"primaryKey" json:"uid,omitempty"`
-	// 	CreatedAt time.Time `json:"created_at,omitempty"`
-	// 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// 	Name      string    `gorm:"index" json:"name,omitempty"`
-	// 	Image     string    `gorm:"uniqueIndex" json:"image,omitempty"`
-	// 	FileName  string    `gorm:"uniqueIndex" json:"filename,omitempty"`
-	// 	Parent    string    `gorm:"index" json:"parent,omitempty"`
-	// 	URL       string    `json:"url,omitempty"`
-	// 	Hidden    bool      `json:"hidden,omitempty"`
-	// 	Tags      string    `json:"tags,omitempty"`
-	// }
-
-	//WAIT FOR PRIMITIVE
-
-	//once primitive returns
-	//upload the new image to the database
-	//add to the config, the id of the image, and the id of the child/
-
-	//file is now written and be be returned
-	// l.Debug("NewModel: ", newModel)
-	// if debug && newModel.URL != "" {
-	// 	newModel.Image = []byte("<img src=" + newModel.URL + " alt=" + newModel.Name + ">")
-	// }
 	marshalledResponse, err := json.Marshal(newImages)
 	if err != nil {
 		HandleError(w, err)

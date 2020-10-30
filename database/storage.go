@@ -110,6 +110,7 @@ func (instance *instance) LoadImage(filename string, parentID uint) (image.Image
 	return image, nil
 
 }
+
 func createFile(fileName, dir string) (*os.File, error) {
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
